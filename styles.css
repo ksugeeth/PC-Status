@@ -1,0 +1,74 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #e0f7fa;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+}
+
+.pc-box {
+    border: 2px solid #00796b;
+    border-radius: 10px;
+    padding: 20px;
+    width: 250px;
+    text-align: center;
+    background-color: #ffffff;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.pc-box h2 {
+    margin-top: 0;
+    color: #004d40;
+}
+
+.pc-box input,
+.pc-box select,
+.pc-box button {
+    margin-top: 10px;
+    padding: 8px;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #00796b;
+    font-size: 16px;
+}
+
+.pc-box button {
+    cursor: pointer;
+    background-color: #00796b;
+    color: white;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.pc-box button:hover {
+    background-color: #004d40;
+}
+
+.pc-box.selected {
+    background-color: #4caf50;
+    color: white;
+    box-shadow: 0px 0px 10px #388e3c;
+}
+
+.pc-box.selected input,
+.pc-box.selected select,
+.pc-box.selected button {
+    background-color: #e8f5e9;
+    color: #4caf50;
+}
+
+.pc-box p {
+    margin: 10px 0;
+}
+
+#chuckle-timer, #giggle-timer {
+    font-weight: bold;
+    color: #d32f2f;
+}

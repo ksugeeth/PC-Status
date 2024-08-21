@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC Selection</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="pc-box" id="chuckle-pc">
+            <h2>Chuckle PC</h2>
+            <p id="chuckle-status">Status: Free</p>
+            <input type="text" id="chuckle-user" placeholder="Enter your name">
+            <select id="chuckle-time">
+                <option value="1800">30 mins</option>
+                <option value="3600">1 hour</option>
+                <option value="7200">2 hours</option>
+                <option value="10800">3 hours</option>
+            </select>
+            <p id="chuckle-timer"></p>
+            <button onclick="selectPC('chuckle')">Use Chuckle PC</button>
+            <button onclick="clearPC('chuckle')">Reset</button>
+        </div>
+
+        <div class="pc-box" id="giggle-pc">
+            <h2>Giggle PC</h2>
+            <p id="giggle-status">Status: Free</p>
+            <input type="text" id="giggle-user" placeholder="Enter your name">
+            <select id="giggle-time">
+                <option value="1800">30 mins</option>
+                <option value="3600">1 hour</option>
+                <option value="7200">2 hours</option>
+                <option value="10800">3 hours</option>
+            </select>
+            <p id="giggle-timer"></p>
+            <button onclick="selectPC('giggle')">Use Giggle PC</button>
+            <button onclick="clearPC('giggle')">Reset</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
