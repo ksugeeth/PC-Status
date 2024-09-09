@@ -1,42 +1,63 @@
 let intervals = {};
 
+// Connect to WebSocket (Ensure your server supports WebSocket)
+const ws = new WebSocket(`wss://${window.location.host}`);
+
+ws.onmessage = function(event) {
+    const pcState = JSON.parse(event.data);
+    updateUI(pcState);
+};
+
+function updateUI(pcState) {
+    ['chuckle', 'giggle'].forEach(pc => {
+        const { user, status, endTime } = pcState[pc];
+        const remainingTime = endTime ? Math.max(0, Math.floor((endTime - Date.now()) / 1000)) : 0;
+        const statusText = user ? `Status: ${user} is using this PC` : 'Status: Free';
+        
+        document.getElementById(`${pc}-user`).value = user;
+        document.getElementById(`${pc}-status`).textContent = statusText;
+        
+        if (user) {
+            startTimer(pc, remainingTime, endTime);
+            document.getElementById(`${pc}-pc`).classList.add('selected');
+        } else {
+            clearInterval(intervals[pc]);
+            document.getElementById(`${pc}-pc`).classList.remove('selected');
+            document.getElementById(`${pc}-timer`).textContent = '';
+        }
+    });
+}
+
+
 function selectPC(pc) {
     const otherPc = pc === 'chuckle' ? 'giggle' : 'chuckle';
-    const selectedPcBox = document.getElementById(`${pc}-pc`);
-    const otherPcBox = document.getElementById(`${otherPc}-pc`);
-
     const userName = document.getElementById(`${pc}-user`).value;
-    const selectedTime = document.getElementById(`${pc}-time`).value;
+    const selectedTime = parseInt(document.getElementById(`${pc}-time`).value);
     const statusElement = document.getElementById(`${pc}-status`);
-    const timerElement = document.getElementById(`${pc}-timer`);
 
     if (!userName) {
         alert('Please enter your name before selecting a PC.');
         return;
     }
 
-    clearInterval(intervals[pc]);  // Clear any existing interval for this PC
+    const remainingTime = selectedTime; // Time in seconds
+    const endTime = Date.now() + remainingTime * 1000; // End time in milliseconds
 
-    const remainingTime = parseInt(selectedTime);
-    const endTime = Date.now() + remainingTime * 1000;
-
-    // Save the details to localStorage
-    localStorage.setItem(`${pc}-user`, userName);
-    localStorage.setItem(`${pc}-endTime`, endTime);
-
-    selectedPcBox.classList.add('selected');
-    otherPcBox.classList.remove('selected');
+    // Update the server with the new PC state
+    fetch('/update', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ pc, user: userName, status: 'In Use', remainingTime, endTime })
+    });
 
     statusElement.textContent = `Status: ${userName} is using this PC`;
-
-    startTimer(pc, remainingTime, endTime);
-
-    // Alert others to use the other PC
-    alert(`Please use the ${otherPc.charAt(0).toUpperCase() + otherPc.slice(1)} PC if ${pc.charAt(0).toUpperCase() + pc.slice(1)} PC is in use.`);
+    document.getElementById(`${pc}-pc`).classList.add('selected');
+    document.getElementById(`${otherPc}-pc`).classList.remove('selected');
 }
 
 function startTimer(pc, remainingTime, endTime) {
-    const statusElement = document.getElementById(`${pc}-status`);
     const timerElement = document.getElementById(`${pc}-timer`);
 
     intervals[pc] = setInterval(() => {
@@ -48,12 +69,13 @@ function startTimer(pc, remainingTime, endTime) {
             timerElement.textContent = `Time left: ${minutes}m ${seconds}s`;
         } else {
             clearInterval(intervals[pc]);
-            localStorage.removeItem(`${pc}-user`);
-            localStorage.removeItem(`${pc}-endTime`);
-            statusElement.textContent = 'Status: Free';
-            document.getElementById(`${pc}-pc`).classList.remove('selected');
-            timerElement.textContent = '';
-            document.getElementById(`${pc}-user`).value = '';
+            fetch('/clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ pc })
+            });
         }
     }, 1000);
 }
@@ -61,36 +83,24 @@ function startTimer(pc, remainingTime, endTime) {
 function clearPC(pc) {
     if (confirm(`Are you sure you want to clear the ${pc.charAt(0).toUpperCase() + pc.slice(1)} PC?`)) {
         clearInterval(intervals[pc]);
-
-        // Clear the data from localStorage
-        localStorage.removeItem(`${pc}-user`);
-        localStorage.removeItem(`${pc}-endTime`);
-
-        const pcBox = document.getElementById(`${pc}-pc`);
-        const statusElement = document.getElementById(`${pc}-status`);
-        const timerElement = document.getElementById(`${pc}-timer`);
-        
-        pcBox.classList.remove('selected');
-        statusElement.textContent = 'Status: Free';
-        timerElement.textContent = '';
-        document.getElementById(`${pc}-user`).value = '';
+        fetch('/clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ pc })
+        });
     }
 }
 
-function loadFromStorage() {
-    ['chuckle', 'giggle'].forEach(pc => {
-        const userName = localStorage.getItem(`${pc}-user`);
-        const endTime = parseInt(localStorage.getItem(`${pc}-endTime`), 10);
-        
-        if (userName && endTime && endTime > Date.now()) {
-            const remainingTime = Math.floor((endTime - Date.now()) / 1000);
-            document.getElementById(`${pc}-user`).value = userName;
-            document.getElementById(`${pc}-pc`).classList.add('selected');
-            document.getElementById(`${pc}-status`).textContent = `Status: ${userName} is using this PC`;
-            startTimer(pc, remainingTime, endTime);
-        }
-    });
+// Initial load from server
+function loadFromServer() {
+    fetch('/status')
+        .then(response => response.json())
+        .then(pcState => {
+            updateUI(pcState);
+        });
 }
 
-// Load data from localStorage when the page is loaded
-window.onload = loadFromStorage;
+// Load data from server when the page is loaded
+window.onload = loadFromServer;
