@@ -1,106 +1,38 @@
-let intervals = {};
+// Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-// Connect to WebSocket (Ensure your server supports WebSocket)
-const ws = new WebSocket(`wss://${window.location.host}`);
-
-ws.onmessage = function(event) {
-    const pcState = JSON.parse(event.data);
-    updateUI(pcState);
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyC1J_Vpdgg797e9V8WNEyP7uAuUPlWs0mc",
+    authDomain: "bench-tracker-s.firebaseapp.com",
+    databaseURL: "https://bench-tracker-s-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "bench-tracker-s",
+    storageBucket: "bench-tracker-s.firebasestorage.app",
+    messagingSenderId: "701367291259",
+    appId: "1:701367291259:web:cc980155f7dc31eed681de"
 };
 
-function updateUI(pcState) {
-    ['chuckle', 'giggle'].forEach(pc => {
-        const { user, status, endTime } = pcState[pc];
-        const remainingTime = endTime ? Math.max(0, Math.floor((endTime - Date.now()) / 1000)) : 0;
-        const statusText = user ? `Status: ${user} is using this PC` : 'Status: Free';
-        
-        document.getElementById(`${pc}-user`).value = user;
-        document.getElementById(`${pc}-status`).textContent = statusText;
-        
-        if (user) {
-            startTimer(pc, remainingTime, endTime);
-            document.getElementById(`${pc}-pc`).classList.add('selected');
-        } else {
-            clearInterval(intervals[pc]);
-            document.getElementById(`${pc}-pc`).classList.remove('selected');
-            document.getElementById(`${pc}-timer`).textContent = '';
-        }
-    });
-}
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const namesRef = ref(db, "names");
 
+// Get input field and list
+const nameInput = document.getElementById("nameInput");
+const nameList = document.getElementById("nameList");
 
-function selectPC(pc) {
-    const otherPc = pc === 'chuckle' ? 'giggle' : 'chuckle';
-    const userName = document.getElementById(`${pc}-user`).value;
-    const selectedTime = parseInt(document.getElementById(`${pc}-time`).value);
-    const statusElement = document.getElementById(`${pc}-status`);
-
-    if (!userName) {
-        alert('Please enter your name before selecting a PC.');
-        return;
+// Send name to Firebase on Enter key press
+nameInput.addEventListener("keypress", function(event) {
+    if (event.key === "Enter" && this.value.trim() !== "") {
+        push(namesRef, this.value.trim());  // Save to Firebase
+        this.value = "";  // Clear input box
     }
+});
 
-    const remainingTime = selectedTime; // Time in seconds
-    const endTime = Date.now() + remainingTime * 1000; // End time in milliseconds
-
-    // Update the server with the new PC state
-    fetch('/update', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ pc, user: userName, status: 'In Use', remainingTime, endTime })
-    });
-
-    statusElement.textContent = `Status: ${userName} is using this PC`;
-    document.getElementById(`${pc}-pc`).classList.add('selected');
-    document.getElementById(`${otherPc}-pc`).classList.remove('selected');
-}
-
-function startTimer(pc, remainingTime, endTime) {
-    const timerElement = document.getElementById(`${pc}-timer`);
-
-    intervals[pc] = setInterval(() => {
-        const timeLeft = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-
-        if (timeLeft > 0) {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            timerElement.textContent = `Time left: ${minutes}m ${seconds}s`;
-        } else {
-            clearInterval(intervals[pc]);
-            fetch('/clear', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ pc })
-            });
-        }
-    }, 1000);
-}
-
-function clearPC(pc) {
-    if (confirm(`Are you sure you want to clear the ${pc.charAt(0).toUpperCase() + pc.slice(1)} PC?`)) {
-        clearInterval(intervals[pc]);
-        fetch('/clear', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ pc })
-        });
-    }
-}
-
-// Initial load from server
-function loadFromServer() {
-    fetch('/status')
-        .then(response => response.json())
-        .then(pcState => {
-            updateUI(pcState);
-        });
-}
-
-// Load data from server when the page is loaded
-window.onload = loadFromServer;
+// Listen for new names in Firebase
+onChildAdded(namesRef, (snapshot) => {
+    let li = document.createElement("li");
+    li.textContent = snapshot.val();
+    nameList.appendChild(li);
+});
