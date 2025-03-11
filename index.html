@@ -7,16 +7,30 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <h2>Select a Bench</h2>
+    
+    <div class="bench-container">
+        <div class="bench" id="civicBench">
+            <p>CIVIC Bench</p>
+            <select id="civicTimer">
+                <option value="30">30 Minutes</option>
+                <option value="60">60 Minutes</option>
+                <option value="120">120 Minutes</option>
+            </select>
+            <p id="civicCountdown">Timer: --:--</p>
+        </div>
 
-    <div class="container">
-        <h1>Select a Bench</h1>
-        <div class="bench-container">
-            <div class="bench" id="civicBench">CIVIC Bench</div>
-            <div class="bench" id="doctorsBench">Doctor's Bench</div>
+        <div class="bench" id="doctorsBench">
+            <p>Doctor's Bench</p>
+            <select id="doctorsTimer">
+                <option value="30">30 Minutes</option>
+                <option value="60">60 Minutes</option>
+                <option value="120">120 Minutes</option>
+            </select>
+            <p id="doctorsCountdown">Timer: --:--</p>
         </div>
     </div>
 
-    <script type="module" src="script.js"></script>
-
+    <script src="script.js" type="module"></script>
 </body>
 </html>
