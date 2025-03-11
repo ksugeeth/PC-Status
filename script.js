@@ -1,8 +1,7 @@
-// Import and Initialize Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+// Firebase Configuration (Use your actual Firebase details)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyC1J_Vpdgg797e9V8WNEyP7uAuUPlWs0mc",
     authDomain: "bench-tracker-s.firebaseapp.com",
@@ -17,84 +16,91 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Get Bench Elements
-const civicBench = document.getElementById("civicBench");
-const doctorsBench = document.getElementById("doctorsBench");
-const civicTimerSelect = document.getElementById("civicTimer");
-const doctorsTimerSelect = document.getElementById("doctorsTimer");
-const civicCountdown = document.getElementById("civicCountdown");
-const doctorsCountdown = document.getElementById("doctorsCountdown");
+// Get references to UI elements
+const benches = document.querySelectorAll(".bench");
+const dropdowns = document.querySelectorAll("select");
 
-let civicInterval, doctorsInterval;
+// Store timers
+let timers = {};
 
-// Function to Start Timer
-function startTimer(benchName, displayElement, duration) {
-    let timeLeft = duration * 60; // Convert minutes to seconds
+// Function to toggle bench selection
+function toggleBench(benchId) {
+    const bench = document.getElementById(benchId);
+    const selected = bench.classList.contains("selected");
 
-    function updateTimer() {
+    if (selected) {
+        // Deselect & stop blinking
+        bench.classList.remove("selected");
+        clearInterval(timers[benchId]);
+        bench.style.backgroundColor = "#f0f0f0"; // Reset background
+        set(ref(database, `benches/${benchId}`), { selected: false, timer: 0 });
+    } else {
+        // Select & start blinking
+        bench.classList.add("selected");
+        let isGreen = false;
+        timers[benchId] = setInterval(() => {
+            isGreen = !isGreen;
+            bench.style.backgroundColor = isGreen ? "lightgreen" : "#f0f0f0";
+        }, 1000);
+
+        // Get selected time
+        const timeDropdown = document.querySelector(`#${benchId}Timer`);
+        const selectedTime = parseInt(timeDropdown.value, 10); // Convert minutes to number
+        startTimer(benchId, selectedTime * 60); // Convert to seconds
+        set(ref(database, `benches/${benchId}`), { selected: true, timer: selectedTime });
+    }
+}
+
+// Function to start a timer
+function startTimer(benchId, duration) {
+    const timerDisplay = document.querySelector(`#${benchId} .timer`);
+    let timeLeft = duration;
+
+    clearInterval(timers[benchId]); // Clear any existing timer
+    timers[benchId] = setInterval(() => {
         let minutes = Math.floor(timeLeft / 60);
         let seconds = timeLeft % 60;
-        displayElement.innerText = `Timer: ${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+        timerDisplay.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
         
         if (timeLeft <= 0) {
-            clearInterval(benchName === "civicBench" ? civicInterval : doctorsInterval);
-            displayElement.innerText = "Timer: 00:00";
+            clearInterval(timers[benchId]);
+            document.getElementById(benchId).classList.remove("selected");
         } else {
             timeLeft--;
         }
-    }
-
-    updateTimer();
-    return setInterval(updateTimer, 1000);
+    }, 1000);
 }
 
-// Toggle Selection and Update Firebase
-function toggleSelection(benchName, element, timerSelect, countdownDisplay) {
-    const isSelected = element.classList.contains("selected");
-    const selectedTime = parseInt(timerSelect.value);
-
-    if (!isSelected) {
-        // Start Timer
-        const timerRef = ref(database, "benches/" + benchName);
-        set(timerRef, { selected: true, timer: selectedTime });
-        location.reload();
-    } else {
-        // Stop and Reset Timer
-        remove(ref(database, "benches/" + benchName));
-        clearInterval(benchName === "civicBench" ? civicInterval : doctorsInterval);
-        countdownDisplay.innerText = "Timer: --:--";
-        location.reload();
-    }
-}
-
-// Click Listeners for Selection
-civicBench.addEventListener("click", function() {
-    toggleSelection("civicBench", civicBench, civicTimerSelect, civicCountdown);
-});
-
-doctorsBench.addEventListener("click", function() {
-    toggleSelection("doctorsBench", doctorsBench, doctorsTimerSelect, doctorsCountdown);
-});
-
-// Sync with Firebase in Real-Time
-onValue(ref(database, "benches/civicBench"), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-        civicBench.classList.toggle("selected", data.selected);
-        if (data.selected && data.timer) {
-            clearInterval(civicInterval);
-            civicInterval = startTimer("civicBench", civicCountdown, data.timer);
+// Attach event listeners to benches
+benches.forEach(bench => {
+    bench.addEventListener("click", function(event) {
+        if (event.target.tagName !== "SELECT") { // Ignore clicks on dropdown
+            toggleBench(this.id);
         }
-    }
+    });
 });
 
-onValue(ref(database, "benches/doctorsBench"), (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-        doctorsBench.classList.toggle("selected", data.selected);
-        if (data.selected && data.timer) {
-            clearInterval(doctorsInterval);
-            doctorsInterval = startTimer("doctorsBench", doctorsCountdown, data.timer);
-        }
+// Prevent clicks inside the timer dropdown from triggering selection
+dropdowns.forEach(dropdown => {
+    dropdown.addEventListener("click", function(event) {
+        event.stopPropagation();
+    });
+});
+
+// Sync with Firebase to update UI when data changes
+onValue(ref(database, "benches"), (snapshot) => {
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        Object.keys(data).forEach(benchId => {
+            const bench = document.getElementById(benchId);
+            const timerDisplay = document.querySelector(`#${benchId} .timer`);
+            if (data[benchId].selected) {
+                bench.classList.add("selected");
+                startTimer(benchId, data[benchId].timer * 60);
+            } else {
+                bench.classList.remove("selected");
+                timerDisplay.textContent = "0:00";
+            }
+        });
     }
 });
