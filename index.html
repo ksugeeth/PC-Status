@@ -3,36 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bench Tracker</title>
+    <title>Bench Selection</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h2>Select a Bench</h2>
-
+    
     <div class="bench-container">
-        <div class="bench" id="civicBench">CIVIC Bench</div>
-        <div class="bench" id="doctorsBench">Doctor's Bench</div>
+        <div class="bench" id="civicBench">
+            <p>CIVIC Bench</p>
+            <select id="civicTimer">
+                <option value="30">30 Minutes</option>
+                <option value="60">60 Minutes</option>
+                <option value="120">120 Minutes</option>
+            </select>
+            <p id="civicCountdown">Timer: --:--</p>
+        </div>
+
+        <div class="bench" id="doctorsBench">
+            <p>Doctor's Bench</p>
+            <select id="doctorsTimer">
+                <option value="30">30 Minutes</option>
+                <option value="60">60 Minutes</option>
+                <option value="120">120 Minutes</option>
+            </select>
+            <p id="doctorsCountdown">Timer: --:--</p>
+        </div>
     </div>
 
-    <!-- Timer dropdowns below each bench -->
-    <div class="timer-container">
-        <select id="civicTimer">
-            <option value="30">30 Minutes</option>
-            <option value="60">60 Minutes</option>
-            <option value="120">120 Minutes</option>
-        </select>
-        <span id="civicCountdown"></span>
-    </div>
-
-    <div class="timer-container">
-        <select id="doctorsTimer">
-            <option value="30">30 Minutes</option>
-            <option value="60">60 Minutes</option>
-            <option value="120">120 Minutes</option>
-        </select>
-        <span id="doctorsCountdown"></span>
-    </div>
-
-    <script type="module" src="script.js"></script>
+    <script src="script.js" type="module"></script>
 </body>
 </html>
