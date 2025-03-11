@@ -1,6 +1,6 @@
 // Import and Initialize Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // Firebase Configuration (Your Provided Details)
 const firebaseConfig = {
@@ -24,12 +24,14 @@ const doctorsBench = document.getElementById("doctorsBench");
 // Toggle Selection and Update Firebase
 function toggleSelection(benchName, element) {
     const isSelected = element.classList.contains("selected");
-    
-    // Update Firebase
-    set(ref(database, "benches/" + benchName), { selected: !isSelected });
 
-    // Toggle Class Locally (for Instant UI Feedback)
-    element.classList.toggle("selected");
+    // Update Firebase
+    set(ref(database, "benches/" + benchName), { selected: !isSelected })
+        .then(() => {
+            // Reload the page after Firebase update
+            location.reload();
+        })
+        .catch((error) => console.error("Error updating Firebase:", error));
 }
 
 // Click Listeners for Selection
