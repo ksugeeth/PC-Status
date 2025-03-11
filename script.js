@@ -1,38 +1,53 @@
-// Import Firebase modules
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+// Import and Initialize Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Firebase configuration
+// Firebase Configuration (Your Provided Details)
 const firebaseConfig = {
-    apiKey: "AIzaSyC1J_Vpdgg797e9V8WNEyP7uAuUPlWs0mc",
-    authDomain: "bench-tracker-s.firebaseapp.com",
-    databaseURL: "https://bench-tracker-s-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "bench-tracker-s",
-    storageBucket: "bench-tracker-s.firebasestorage.app",
-    messagingSenderId: "701367291259",
-    appId: "1:701367291259:web:cc980155f7dc31eed681de"
+  apiKey: "AIzaSyC1J_Vpdgg797e9V8WNEyP7uAuUPlWs0mc",
+  authDomain: "bench-tracker-s.firebaseapp.com",
+  databaseURL: "https://bench-tracker-s-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "bench-tracker-s",
+  storageBucket: "bench-tracker-s.firebasestorage.app",
+  messagingSenderId: "701367291259",
+  appId: "1:701367291259:web:cc980155f7dc31eed681de"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const namesRef = ref(db, "names");
+const database = getDatabase(app);
 
-// Get input field and list
-const nameInput = document.getElementById("nameInput");
-const nameList = document.getElementById("nameList");
+// Get Bench Elements
+const civicBench = document.getElementById("civicBench");
+const doctorsBench = document.getElementById("doctorsBench");
 
-// Send name to Firebase on Enter key press
-nameInput.addEventListener("keypress", function(event) {
-    if (event.key === "Enter" && this.value.trim() !== "") {
-        push(namesRef, this.value.trim());  // Save to Firebase
-        this.value = "";  // Clear input box
-    }
+// Toggle Selection and Update Firebase
+function toggleSelection(benchName, element) {
+    const isSelected = element.classList.contains("selected");
+    
+    // Update Firebase
+    set(ref(database, "benches/" + benchName), { selected: !isSelected });
+
+    // Toggle Class Locally (for Instant UI Feedback)
+    element.classList.toggle("selected");
+}
+
+// Click Listeners for Selection
+civicBench.addEventListener("click", function() {
+    toggleSelection("civicBench", civicBench);
 });
 
-// Listen for new names in Firebase
-onChildAdded(namesRef, (snapshot) => {
-    let li = document.createElement("li");
-    li.textContent = snapshot.val();
-    nameList.appendChild(li);
+doctorsBench.addEventListener("click", function() {
+    toggleSelection("doctorsBench", doctorsBench);
+});
+
+// Sync with Firebase in Real-Time
+onValue(ref(database, "benches/civicBench"), (snapshot) => {
+    const data = snapshot.val();
+    if (data) civicBench.classList.toggle("selected", data.selected);
+});
+
+onValue(ref(database, "benches/doctorsBench"), (snapshot) => {
+    const data = snapshot.val();
+    if (data) doctorsBench.classList.toggle("selected", data.selected);
 });
