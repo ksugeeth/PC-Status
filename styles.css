@@ -29,6 +29,7 @@ h1 {
     gap: 50px;
     justify-content: center;
     align-items: center;
+    margin-bottom: 20px;
 }
 
 .bench {
@@ -45,6 +46,17 @@ h1 {
     cursor: pointer;
     transition: all 0.3s ease-in-out;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Input Box Styling */
+.name-input {
+    width: 300px;
+    padding: 10px;
+    font-size: 18px;
+    margin: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
+    text-align: center;
 }
 
 /* Blinking Effect */
