@@ -1,4 +1,4 @@
-// Firebase Configuration (Use your actual Firebase details)
+// Firebase Configuration
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
@@ -26,6 +26,7 @@ let timers = {};
 // Function to toggle bench selection
 function toggleBench(benchId) {
     const bench = document.getElementById(benchId);
+    const timerDisplay = document.querySelector(`#${benchId} .timer`);
     const selected = bench.classList.contains("selected");
 
     if (selected) {
@@ -33,6 +34,7 @@ function toggleBench(benchId) {
         bench.classList.remove("selected");
         clearInterval(timers[benchId]);
         bench.style.backgroundColor = "#f0f0f0"; // Reset background
+        timerDisplay.textContent = "0:00"; // Reset timer
         set(ref(database, `benches/${benchId}`), { selected: false, timer: 0 });
     } else {
         // Select & start blinking
