@@ -22,6 +22,8 @@ const civicBench = document.getElementById("civicBench");
 const doctorsBench = document.getElementById("doctorsBench");
 const civicNameInput = document.getElementById("civicName");
 const doctorsNameInput = document.getElementById("doctorsName");
+const civicCodeDisplay = document.getElementById("civicCode");
+const doctorsCodeDisplay = document.getElementById("doctorsCode");
 const civicReset = document.getElementById("civicReset");
 const doctorsReset = document.getElementById("doctorsReset");
 const adminPopup = document.getElementById("adminPopup");
@@ -39,8 +41,14 @@ function generateSecretCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+// Display secret code for the user
+function displaySecretCode(codeDisplay, code, benchName) {
+    codeDisplay.style.display = "block";
+    codeDisplay.textContent = `Your Secret Code: ${code}`;
+}
+
 // Toggle Selection and Update Firebase
-function toggleSelection(benchName, element, nameInput, resetBtn, secretKey) {
+function toggleSelection(benchName, element, nameInput, codeDisplay, resetBtn, secretKey) {
     const isSelected = element.classList.contains("selected");
     const name = nameInput.value.trim();
 
@@ -53,7 +61,7 @@ function toggleSelection(benchName, element, nameInput, resetBtn, secretKey) {
         localStorage.setItem(secretKey, secretCode);
         set(ref(database, "benches/" + benchName), { selected: true, name: name })
             .then(() => {
-                alert(`Bench selected! Your secret code is: ${secretCode}. Keep it safe to deselect.`);
+                displaySecretCode(codeDisplay, secretCode, benchName);
                 location.reload();
             })
             .catch((error) => console.error("Error updating Firebase:", error));
@@ -64,19 +72,20 @@ function toggleSelection(benchName, element, nameInput, resetBtn, secretKey) {
             set(ref(database, "benches/" + benchName), { selected: false, name: "" })
                 .then(() => {
                     localStorage.removeItem(secretKey);
+                    codeDisplay.style.display = "none";
                     nameInput.value = "";
                     location.reload();
                 })
                 .catch((error) => console.error("Error updating Firebase:", error));
         } else {
             alert("Incorrect code! Use the reset button if you forgot your code.");
-            resetBtn.style.display = "block"; // Show reset button
+            resetBtn.style.display = "block";
         }
     }
 }
 
 // Reset Functionality with Admin Popup
-function setupReset(benchName, resetBtn, nameInput, secretKey) {
+function setupReset(benchName, resetBtn, nameInput, codeDisplay, secretKey) {
     resetBtn.addEventListener("click", () => {
         adminPopup.style.display = "block";
         submitAdmin.onclick = () => {
@@ -86,6 +95,7 @@ function setupReset(benchName, resetBtn, nameInput, secretKey) {
                 set(ref(database, "benches/" + benchName), { selected: false, name: "" })
                     .then(() => {
                         localStorage.removeItem(secretKey);
+                        codeDisplay.style.display = "none";
                         nameInput.value = "";
                         adminPopup.style.display = "none";
                         resetBtn.style.display = "none";
@@ -100,24 +110,27 @@ function setupReset(benchName, resetBtn, nameInput, secretKey) {
 }
 
 // Click Listeners for Selection
-civicBench.addEventListener("click", () => toggleSelection("civicBench", civicBench, civicNameInput, civicReset, "civicSecretCode"));
-doctorsBench.addEventListener("click", () => toggleSelection("doctorsBench", doctorsBench, doctorsNameInput, doctorsReset, "doctorsSecretCode"));
+civicBench.addEventListener("click", () => toggleSelection("civicBench", civicBench, civicNameInput, civicCodeDisplay, civicReset, "civicSecretCode"));
+doctorsBench.addEventListener("click", () => toggleSelection("doctorsBench", doctorsBench, doctorsNameInput, doctorsCodeDisplay, doctorsReset, "doctorsSecretCode"));
 
 // Setup Reset Buttons
-setupReset("civicBench", civicReset, civicNameInput, "civicSecretCode");
-setupReset("doctorsBench", doctorsReset, doctorsNameInput, "doctorsSecretCode");
+setupReset("civicBench", civicReset, civicNameInput, civicCodeDisplay, "civicSecretCode");
+setupReset("doctorsBench", doctorsReset, doctorsNameInput, doctorsCodeDisplay, "doctorsSecretCode");
 
 // Close Popup
 closePopup.addEventListener("click", () => {
     adminPopup.style.display = "none";
 });
 
-// Sync with Firebase in Real-Time
+// Sync with Firebase and Show Secret Code if Exists
 onValue(ref(database, "benches/civicBench"), (snapshot) => {
     const data = snapshot.val();
     if (data) {
         civicBench.classList.toggle("selected", data.selected);
         civicNameInput.value = data.name || "";
+        if (civicSecretCode && data.selected) {
+            displaySecretCode(civicCodeDisplay, civicSecretCode, "civicBench");
+        }
     }
 });
 
@@ -126,6 +139,8 @@ onValue(ref(database, "benches/doctorsBench"), (snapshot) => {
     if (data) {
         doctorsBench.classList.toggle("selected", data.selected);
         doctorsNameInput.value = data.name || "";
+        if (doctorsSecretCode && data.selected) {
+            displaySecretCode(doctorsCodeDisplay, doctorsSecretCode, "doctorsBench");
+        }
     }
 });
-
