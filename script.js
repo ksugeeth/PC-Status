@@ -67,6 +67,7 @@ onValue(ref(database, "benches/civicBench"), (snapshot) => {
     }
 });
 
+
 onValue(ref(database, "benches/doctorsBench"), (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -74,3 +75,21 @@ onValue(ref(database, "benches/doctorsBench"), (snapshot) => {
         doctorsNameInput.value = data.name || "";
     }
 });
+
+// Code Rain Effect
+function createCodeRain() {
+    const codeRain = document.createElement('div');
+    codeRain.className = 'code-rain';
+    document.body.appendChild(codeRain);
+
+    for (let i = 0; i < 50; i++) {
+        const span = document.createElement('span');
+        span.textContent = Math.random() > 0.5 ? '1' : '0';
+        span.style.left = `${Math.random() * 100}vw`;
+        span.style.animationDuration = `${Math.random() * 5 + 5}s`;
+        span.style.animationDelay = `${Math.random() * 5}s`;
+        codeRain.appendChild(span);
+    }
+}
+
+createCodeRain();
