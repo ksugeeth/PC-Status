@@ -5,17 +5,16 @@
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Orbitron', sans-serif; /* Futuristic font */
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: radial-gradient(circle at center, #1a0933, #0d051a);
-    overflow: hidden;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); /* Cosmic gradient */
+    overflow: hidden; /* For effects */
     position: relative;
 }
 
-/* Pure CSS Particle Background */
 body::before {
     content: '';
     position: absolute;
@@ -23,184 +22,141 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 20px 20px;
-    animation: particleDrift 30s infinite linear;
-    z-index: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent);
+    z-index: -1;
+    animation: pulse 10s infinite;
 }
 
-body::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 2px, transparent 2px);
-    background-size: 30px 30px;
-    animation: particleDrift 40s infinite linear reverse;
-    z-index: 0;
-}
-
-@keyframes particleDrift {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(50px, 50px); }
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 0.2; }
+    100% { transform: scale(1); opacity: 0.5; }
 }
 
 .container {
     text-align: center;
-    z-index: 1;
-    padding: 50px;
+    padding: 30px;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 25px;
-    backdrop-filter: blur(15px);
-    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    position: relative;
-    overflow: hidden;
+    border-radius: 20px;
+    backdrop-filter: blur(10px); /* Glassmorphism effect */
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transform: perspective(1000px) rotateX(10deg); /* 3D tilt */
+    animation: float 4s ease-in-out infinite;
 }
 
-/* Container Glow */
-.container::before {
+@keyframes float {
+    0% { transform: translateY(0) rotateX(10deg); }
+    50% { transform: translateY(-20px) rotateX(10deg); }
+    100% { transform: translateY(0) rotateX(10deg); }
+}
+
+h1 {
+    font-size: 36px;
+    color: #00ffcc; /* Neon cyan */
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc, 0 0 40px #00ffcc;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc, 0 0 40px #00ffcc; }
+    to { text-shadow: 0 0 20px #00ffcc, 0 0 30px #00ffcc, 0 0 60px #00ffcc; }
+}
+
+.bench-container {
+    display: flex;
+    gap: 60px;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px; /* 3D effect */
+}
+
+.bench {
+    width: 250px;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, #1e1e1e, #333); /* Sleek gradient */
+    border: 4px solid #ff00ff; /* Neon magenta border */
+    border-radius: 25px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px #ff00ff;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    transform-style: preserve-3d;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(255, 0, 255, 0.5);
+}
+
+.bench:hover {
+    transform: translateZ(20px) rotateY(10deg); /* 3D hover effect */
+    box-shadow: 0 20px 50px rgba(255, 0, 255, 0.8);
+}
+
+.bench::after {
     content: '';
     position: absolute;
     top: -50%;
     left: -50%;
     width: 200%;
     height: 200%;
-    background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    animation: rotateGlow 10s infinite linear;
-    z-index: -1;
-}
-
-@keyframes rotateGlow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-h1 {
-    font-size: 3.5rem;
-    color: #fff;
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 30px rgba(147, 51, 234, 0.5);
-    margin-bottom: 50px;
-    animation: fadeIn 2s ease-in-out;
-}
-
-.bench-container {
-    display: flex;
-    gap: 80px;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 40px;
-}
-
-.bench {
-    position: relative;
-    width: 280px;
-    height: 280px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #3b0764, #6b21a8);
-    border-radius: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #fff;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.5s ease;
-    transform-style: preserve-3d;
-    perspective: 1000px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-.bench span {
-    z-index: 2;
-}
-
-.glow-effect {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 0, 255, 0.2), transparent);
     opacity: 0;
-    transition: opacity 0.4s ease;
-    border-radius: 20px;
+    transition: opacity 0.3s ease;
 }
 
-.bench:hover {
-    transform: translateZ(20px) scale(1.1);
-    box-shadow: 0 20px 60px rgba(147, 51, 234, 0.7);
-}
-
-.bench:hover .glow-effect {
+.bench:hover::after {
     opacity: 1;
 }
 
+/* Blinking Effect (Unchanged) */
+@keyframes blinkEffect {
+    0% {
+        background-color: white;
+        color: black;
+    }
+    50% {
+        background-color: green;
+        color: white;
+    }
+    100% {
+        background-color: white;
+        color: black;
+    }
+}
+
 .bench.selected {
-    background: linear-gradient(135deg, #9333ea, #d8b4fe);
-    box-shadow: 0 0 50px rgba(147, 51, 234, 0.9), 0 0 100px rgba(216, 180, 254, 0.6);
-    transform: translateZ(30px);
-    animation: pulse3D 2s infinite;
-}
-
-/* 3D Pulse Animation */
-@keyframes pulse3D {
-    0% { transform: translateZ(30px) scale(1); }
-    50% { transform: translateZ(40px) scale(1.05); }
-    100% { transform: translateZ(30px) scale(1); }
-}
-
-.input-container {
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
+    animation: blinkEffect 1s infinite;
+    border-color: green;
+    box-shadow: 0px 0px 20px rgba(0, 255, 0, 0.8);
+    transform: translateZ(30px); /* Pop out when selected */
 }
 
 .name-input {
-    width: 400px;
-    padding: 15px;
-    font-size: 1.3rem;
-    background: rgba(255, 255, 255, 0.08);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    color: #fff;
+    width: 320px;
+    padding: 12px;
+    font-size: 18px;
+    margin: 15px auto;
+    display: block;
+    border: 2px solid #00ffcc;
+    border-radius: 50px; /* Pill-shaped */
     text-align: center;
-    transition: all 0.4s ease;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+    transition: all 0.3s ease;
 }
 
 .name-input:focus {
-    border-color: #9333ea;
-    box-shadow: 0 0 25px rgba(147, 51, 234, 0.7);
-    background: rgba(255, 255, 255, 0.15);
-    transform: scale(1.02);
-}
-
-.toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 25px;
-    background: rgba(147, 51, 234, 0.9);
-    color: #fff;
-    border-radius: 8px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes toastShow {
-    0% { opacity: 0; transform: translateY(20px); }
-    20% { opacity: 1; transform: translateY(0); }
-    80% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(20px); }
+    outline: none;
+    box-shadow: 0 0 25px rgba(0, 255, 204, 0.8);
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.2);
 }
