@@ -1,64 +1,76 @@
-// Import and Initialize Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC1J_Vpdgg797e9V8WNEyP7uAuUPlWs0mc",
-  authDomain: "bench-tracker-s.firebaseapp.com",
-  databaseURL: "https://bench-tracker-s-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "bench-tracker-s",
-  storageBucket: "bench-tracker-s.firebasestorage.app",
-  messagingSenderId: "701367291259",
-  appId: "1:701367291259:web:cc980155f7dc31eed681de"
+    apiKey: "AIzaSyC1J_Vpdgg797e9V8WNEyP7uAuUPlWs0mc",
+    authDomain: "bench-tracker-s.firebaseapp.com",
+    databaseURL: "https://bench-tracker-s-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "bench-tracker-s",
+    storageBucket: "bench-tracker-s.firebasestorage.app",
+    messagingSenderId: "701367291259",
+    appId: "1:701367291259:web:cc980155f7dc31eed681de"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Get Elements
 const civicBench = document.getElementById("civicBench");
 const doctorsBench = document.getElementById("doctorsBench");
 const civicNameInput = document.getElementById("civicName");
 const doctorsNameInput = document.getElementById("doctorsName");
+const toast = document.getElementById("toast");
 
-// Toggle Selection and Update Firebase
+function showToast(message) {
+    toast.textContent = message;
+    toast.style.opacity = 1;
+    toast.style.animation = "toastShow 3s forwards";
+    setTimeout(() => {
+        toast.style.opacity = 0;
+        toast.style.animation = "";
+    }, 3000);
+}
+
 function toggleSelection(benchName, element, nameInput) {
     const isSelected = element.classList.contains("selected");
 
     if (isSelected) {
-        // Show confirmation before deselecting
         if (confirm(`Deselect ${benchName.replace("Bench", " Bench")}?`)) {
             set(ref(database, "benches/" + benchName), { selected: false, name: "" })
                 .then(() => {
-                    nameInput.value = ""; // Reset text box
-                    location.reload();
+                    nameInput.value = "";
+                    showToast(`${benchName.replace("Bench", " Bench")} deselected`);
+                    setTimeout(() => location.reload(), 500);
                 })
-                .catch((error) => console.error("Error updating Firebase:", error));
+                .catch((error) => {
+                    console.error("Error updating Firebase:", error);
+                    showToast("Error occurred!");
+                });
         }
     } else {
+        if (!nameInput.value.trim()) {
+            showToast("Please enter a name!");
+            return;
+        }
         set(ref(database, "benches/" + benchName), { selected: true, name: nameInput.value })
-            .then(() => location.reload())
-            .catch((error) => console.error("Error updating Firebase:", error));
+            .then(() => {
+                showToast(`${benchName.replace("Bench", " Bench")} selected by ${nameInput.value}`);
+                setTimeout(() => location.reload(), 500);
+            })
+            .catch((error) => {
+                console.error("Error updating Firebase:", error);
+                showToast("Error occurred!");
+            });
     }
 }
 
-// Click Listeners for Selection
-civicBench.addEventListener("click", function() {
-    toggleSelection("civicBench", civicBench, civicNameInput);
-});
+civicBench.addEventListener("click", () => toggleSelection("civicBench", civicBench, civicNameInput));
+doctorsBench.addEventListener("click", () => toggleSelection("doctorsBench", doctorsBench, doctorsNameInput));
 
-doctorsBench.addEventListener("click", function() {
-    toggleSelection("doctorsBench", doctorsBench, doctorsNameInput);
-});
-
-// Sync with Firebase in Real-Time
 onValue(ref(database, "benches/civicBench"), (snapshot) => {
     const data = snapshot.val();
     if (data) {
         civicBench.classList.toggle("selected", data.selected);
-        civicNameInput.value = data.name || ""; // Keep name in sync
+        civicNameInput.value = data.name || "";
     }
 });
 
@@ -66,6 +78,6 @@ onValue(ref(database, "benches/doctorsBench"), (snapshot) => {
     const data = snapshot.val();
     if (data) {
         doctorsBench.classList.toggle("selected", data.selected);
-        doctorsNameInput.value = data.name || ""; // Keep name in sync
+        doctorsNameInput.value = data.name || "";
     }
 });
