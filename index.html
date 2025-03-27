@@ -3,24 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bench Selection</title>
+    <title>Bench Nexus</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-
+    <div class="background-particles"></div>
     <div class="container">
-        <h1>Select a Bench</h1>
+        <h1>Bench Nexus</h1>
         <div class="bench-container">
-            <div class="bench" id="civicBench">CIVIC Bench</div>
-            <div class="bench" id="doctorsBench">Doctor's Bench</div>
+            <div class="bench" id="civicBench">
+                <span>CIVIC Bench</span>
+                <div class="glow-effect"></div>
+            </div>
+            <div class="bench" id="doctorsBench">
+                <span>Doctor's Bench</span>
+                <div class="glow-effect"></div>
+            </div>
         </div>
-
-        <!-- Name Input Fields -->
-        <input type="text" id="civicName" class="name-input" placeholder="Enter your name">
-        <input type="text" id="doctorsName" class="name-input" placeholder="Enter your name">
+        <div class="input-container">
+            <input type="text" id="civicName" class="name-input" placeholder="Enter your name">
+            <input type="text" id="doctorsName" class="name-input" placeholder="Enter your name">
+        </div>
+        <div class="toast" id="toast"></div>
     </div>
-
     <script type="module" src="script.js"></script>
-
 </body>
 </html>
