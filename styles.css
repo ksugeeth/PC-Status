@@ -5,12 +5,12 @@
 }
 
 body {
-    font-family: 'Roboto Mono', monospace; /* Code-like font */
+    font-family: 'Roboto Mono', monospace;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: #0a0a0a; /* Dark base for code rain */
+    background: #f5f6f5; /* Soft white - clean and universally loved */
     overflow: hidden;
     position: relative;
 }
@@ -28,24 +28,24 @@ body {
 
 .code-rain span {
     position: absolute;
-    color: #00cc00; /* Matrix green */
+    color: #2ecc71; /* Emerald green - globally popular for nature association */
     font-size: 16px;
-    opacity: 0.7;
+    opacity: 0.8;
     animation: fall linear infinite;
 }
 
 @keyframes fall {
-    0% { transform: translateY(-100vh); opacity: 0.7; }
+    0% { transform: translateY(-100vh); opacity: 0.8; }
     100% { transform: translateY(100vh); opacity: 0; }
 }
 
 .container {
     text-align: center;
     padding: 40px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.9); /* White with slight transparency */
     border-radius: 15px;
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.3); /* Gold glow */
-    border: 1px solid rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 40px rgba(52, 152, 219, 0.3); /* Blue glow */
+    border: 1px solid rgba(52, 152, 219, 0.5); /* Soft blue */
     animation: float 3s ease-in-out infinite;
 }
 
@@ -57,11 +57,11 @@ body {
 
 h1 {
     font-size: 32px;
-    color: #ffd700; /* Gold */
+    color: #3498db; /* Sky blue - the world’s favorite color */
     text-transform: uppercase;
     letter-spacing: 3px;
     margin-bottom: 30px;
-    text-shadow: 0 0 15px #ffd700, 0 0 30px #ff4500; /* Orange glow */
+    text-shadow: 0 0 15px #3498db, 0 0 30px #2980b9; /* Deeper blue glow */
 }
 
 .bench-container {
@@ -83,22 +83,22 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(45deg, #1a1a1a, #333); /* Dark gradient */
-    border: 4px solid #ff4500; /* Orange-red */
+    background: linear-gradient(45deg, #ecf0f1, #bdc3c7); /* White to light gray */
+    border: 4px solid #e74c3c; /* Vibrant red - universally eye-catching */
     border-radius: 20px;
     font-size: 22px;
     font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 10px #ff4500;
+    color: #2c3e50; /* Dark blue-gray for contrast */
+    text-shadow: 0 0 10px #e74c3c;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    box-shadow: 0 10px 20px rgba(255, 69, 0, 0.5);
+    box-shadow: 0 10px 20px rgba(231, 76, 60, 0.5); /* Red shadow */
 }
 
 .bench:hover {
     transform: scale(1.05);
-    box-shadow: 0 15px 30px rgba(255, 69, 0, 0.8);
+    box-shadow: 0 15px 30px rgba(231, 76, 60, 0.8);
 }
 
 /* Blinking Effect (Unchanged) */
@@ -110,7 +110,7 @@ h1 {
 
 .bench.selected {
     animation: blinkEffect 1s infinite;
-    border-color: green;
+    border-color: green; /* Kept green as per original */
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
 }
 
@@ -119,17 +119,17 @@ h1 {
     padding: 10px;
     font-size: 16px;
     margin-top: 10px;
-    border: 2px solid #ffd700; /* Gold */
+    border: 2px solid #9b59b6; /* Purple - a globally loved accent */
     border-radius: 10px;
     text-align: center;
-    background: rgba(255, 255, 255, 0.05);
-    color: #fff;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+    color: #2c3e50; /* Dark blue-gray */
+    box-shadow: 0 0 10px rgba(155, 89, 182, 0.5); /* Purple shadow */
     transition: all 0.3s ease;
 }
 
 .name-input:focus {
     outline: none;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 20px rgba(155, 89, 182, 0.8);
+    background: rgba(255, 255, 255, 0.4);
 }
