@@ -67,7 +67,6 @@ onValue(ref(database, "benches/civicBench"), (snapshot) => {
     }
 });
 
-
 onValue(ref(database, "benches/doctorsBench"), (snapshot) => {
     const data = snapshot.val();
     if (data) {
