@@ -10,7 +10,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: rgba(0, 0, 0, 0.5); /* Black with transparency */
+    background: #0a0a0a; /* Dark base for code rain */
     overflow: hidden;
     position: relative;
 }
