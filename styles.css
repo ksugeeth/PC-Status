@@ -5,79 +5,157 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Orbitron', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #f4f4f4;
-    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    overflow: hidden;
+    position: relative;
+}
+
+.background-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://i.imgur.com/8p5z8jV.png') repeat;
+    opacity: 0.1;
+    animation: particleFlow 20s infinite linear;
+}
+
+@keyframes particleFlow {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-100%); }
 }
 
 .container {
     text-align: center;
+    z-index: 1;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
 }
 
 h1 {
-    margin-bottom: 20px;
-    font-size: 28px;
-    color: #333;
+    font-size: 3rem;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    margin-bottom: 40px;
+    animation: fadeIn 2s ease-in-out;
 }
 
 .bench-container {
     display: flex;
-    gap: 50px;
+    gap: 60px;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
 }
 
 .bench {
-    width: 230px;
-    height: 230px;
+    position: relative;
+    width: 250px;
+    height: 250px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    border: 4px solid black;
-    border-radius: 15px;
-    font-size: 22px;
-    font-weight: bold;
+    background: linear-gradient(45deg, #1e3c72, #2a5298);
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    overflow: hidden;
 }
 
-/* Input Box Styling */
-.name-input {
-    width: 300px;
-    padding: 10px;
-    font-size: 18px;
-    margin: 10px;
-    border: 2px solid black;
-    border-radius: 5px;
-    text-align: center;
+.bench span {
+    z-index: 2;
 }
 
-/* Blinking Effect */
-@keyframes blinkEffect {
-    0% {
-        background-color: white;
-        color: black;
-    }
-    50% {
-        background-color: green;
-        color: white;
-    }
-    100% {
-        background-color: white;
-        color: black;
-    }
+.glow-effect {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* Apply Blinking Animation on Selection */
+.bench:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+}
+
+.bench:hover .glow-effect {
+    opacity: 1;
+}
+
 .bench.selected {
-    animation: blinkEffect 1s infinite;
-    border-color: green;
-    box-shadow: 0px 0px 20px rgba(0, 255, 0, 0.8);
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    box-shadow: 0 0 40px rgba(0, 198, 255, 0.8);
+    animation: pulse 1.5s infinite;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.name-input {
+    width: 350px;
+    padding: 15px;
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    color: #fff;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.name-input:focus {
+    border-color: #00c6ff;
+    box-shadow: 0 0 15px rgba(0, 198, 255, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background: rgba(0, 198, 255, 0.9);
+    color: #fff;
+    border-radius: 5px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes toastShow {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
 }
