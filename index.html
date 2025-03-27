@@ -4,22 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bench Selection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="container">
-    <h1>Select a Bench</h1>
-    <div class="bench-container">
-        <div class="bench" id="civicBench">CIVIC Bench</div>
-        <div class="bench" id="doctorsBench">Doctor's Bench</div>
+    <div class="container">
+        <h1>Select a Bench</h1>
+        <div class="bench-container">
+            <div class="bench-wrapper">
+                <div class="bench" id="civicBench">CIVIC Bench</div>
+                <input type="text" id="civicName" class="name-input" placeholder="Enter your name">
+            </div>
+            <div class="bench-wrapper">
+                <div class="bench" id="doctorsBench">Doctor's Bench</div>
+                <input type="text" id="doctorsName" class="name-input" placeholder="Enter your name">
+            </div>
+        </div>
     </div>
-
-    <!-- Name Input Fields -->
-    <input type="text" id="civicName" class="name-input" placeholder="Enter your name">
-    <input type="text" id="doctorsName" class="name-input" placeholder="Enter your name">
-</div>
-
-<script type="module" src="script.js"></script>
-
+    <script type="module" src="script.js"></script>
 </body>
 </html>
