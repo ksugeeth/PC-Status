@@ -14,11 +14,22 @@
             <div class="bench-wrapper">
                 <div class="bench" id="civicBench">CIVIC Bench</div>
                 <input type="text" id="civicName" class="name-input" placeholder="Enter your name">
+                <button class="reset-btn" id="civicReset" style="display: none;">Reset</button>
             </div>
             <div class="bench-wrapper">
                 <div class="bench" id="doctorsBench">Doctor's Bench</div>
                 <input type="text" id="doctorsName" class="name-input" placeholder="Enter your name">
+                <button class="reset-btn" id="doctorsReset" style="display: none;">Reset</button>
             </div>
+        </div>
+    </div>
+    <div id="adminPopup" class="popup" style="display: none;">
+        <div class="popup-content">
+            <h2>Admin Access Required</h2>
+            <input type="text" id="adminId" placeholder="Admin ID">
+            <input type="password" id="adminPass" placeholder="Password">
+            <button id="submitAdmin">Submit</button>
+            <button id="closePopup">Cancel</button>
         </div>
     </div>
     <script type="module" src="script.js"></script>
