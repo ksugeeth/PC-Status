@@ -1,6 +1,6 @@
 // Import and Initialize Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -44,6 +44,11 @@ const adminPassInput = document.getElementById("adminPass");
 const submitAdmin = document.getElementById("submitAdmin");
 const closePopup = document.getElementById("closePopup");
 
+const historyBtn = document.getElementById("historyBtn");
+const historyPopup = document.getElementById("historyPopup");
+const historyTableBody = document.querySelector("#historyTable tbody");
+const closeHistoryPopup = document.getElementById("closeHistoryPopup");
+
 // Store secret codes locally
 let civicTest1SecretCode = localStorage.getItem("civicTest1SecretCode") || null;
 let doctorsSecretCode = localStorage.getItem("doctorsSecretCode") || null;
@@ -61,6 +66,31 @@ function displaySecretCode(codeDisplay, code, benchName) {
     codeDisplay.textContent = `Your Secret Code: ${code}`;
 }
 
+// Format timestamp to readable date/time
+function formatDateTime(timestamp) {
+    return new Date(timestamp).toLocaleString();
+}
+
+// Calculate usage time in minutes
+function calculateUsageTime(loginTime, logoutTime) {
+    const diffMs = logoutTime - loginTime;
+    const minutes = Math.round(diffMs / 60000);
+    return `${minutes} minutes`;
+}
+
+// Save usage history to Firebase
+function saveUsageHistory(benchName, userName, loginTime, logoutTime) {
+    const historyRef = ref(database, "usageHistory");
+    const newEntry = {
+        userName,
+        benchName,
+        loginTime: loginTime.toISOString(),
+        logoutTime: logoutTime.toISOString(),
+        dateTime: new Date(loginTime).toISOString()
+    };
+    push(historyRef, newEntry);
+}
+
 // Toggle Selection and Update Firebase
 function toggleSelection(benchName, element, nameInput, codeDisplay, resetBtn, secretKey) {
     const isSelected = element.classList.contains("selected");
@@ -72,8 +102,13 @@ function toggleSelection(benchName, element, nameInput, codeDisplay, resetBtn, s
             return;
         }
         const secretCode = generateSecretCode();
+        const loginTime = new Date();
         localStorage.setItem(secretKey, secretCode);
-        set(ref(database, "benches/" + benchName), { selected: true, name: name })
+        set(ref(database, "benches/" + benchName), { 
+            selected: true, 
+            name: name,
+            loginTime: loginTime.toISOString()
+        })
             .then(() => {
                 displaySecretCode(codeDisplay, secretCode, benchName);
                 location.reload();
@@ -83,7 +118,15 @@ function toggleSelection(benchName, element, nameInput, codeDisplay, resetBtn, s
         const storedCode = localStorage.getItem(secretKey);
         const userCode = prompt(`Enter your secret code to deselect ${benchName.replace("Bench", " Bench")}:`);
         if (userCode === storedCode) {
-            set(ref(database, "benches/" + benchName), { selected: false, name: "" })
+            const logoutTime = new Date();
+            onValue(ref(database, "benches/" + benchName), (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.loginTime) {
+                    saveUsageHistory(benchName, name, new Date(data.loginTime), logoutTime);
+                }
+            }, { onlyOnce: true });
+            
+            set(ref(database, "benches/" + benchName), { selected: false, name: "", loginTime: null })
                 .then(() => {
                     localStorage.removeItem(secretKey);
                     codeDisplay.style.display = "none";
@@ -99,14 +142,22 @@ function toggleSelection(benchName, element, nameInput, codeDisplay, resetBtn, s
 }
 
 // Reset Functionality with Admin Popup
-function setupReset(benchName, resetBtn, nameInput, codeDisplay, secretKey) {
+function setupReset(b HUGE ERRORenchName, resetBtn, nameInput, codeDisplay, secretKey) {
     resetBtn.addEventListener("click", () => {
         adminPopup.style.display = "block";
         submitAdmin.onclick = () => {
             const id = adminIdInput.value;
             const pass = adminPassInput.value;
             if (id === "admin" && pass === "123") {
-                set(ref(database, "benches/" + benchName), { selected: false, name: "" })
+                const logoutTime = new Date();
+                onValue(ref(database, "benches/" + benchName), (snapshot) => {
+                    const data = snapshot.val();
+                    if (data && data.loginTime && data.name) {
+                        saveUsageHistory(benchName, data.name, new Date(data.loginTime), logoutTime);
+                    }
+                }, { onlyOnce: true });
+
+                set(ref(database, "benches/" + benchName), { selected: false, name: "", loginTime: null })
                     .then(() => {
                         localStorage.removeItem(secretKey);
                         codeDisplay.style.display = "none";
@@ -123,6 +174,28 @@ function setupReset(benchName, resetBtn, nameInput, codeDisplay, secretKey) {
     });
 }
 
+// Display History
+function displayHistory() {
+    historyTableBody.innerHTML = "";
+    onValue(ref(database, "usageHistory"), (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            Object.values(data).forEach(entry => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${entry.userName}</td>
+                    <td>${entry.benchName.replace("Bench", " Bench")}</td>
+                    <td>${formatDateTime(new Date(entry.loginTime))}</td>
+                    <td>${formatDateTime(new Date(entry.logoutTime))}</td>
+                    <td>${formatDateTime(new Date(entry.dateTime))}</td>
+                    <td>${calculateUsageTime(new Date(entry.loginTime), new Date(entry.logoutTime))}</td>
+                `;
+                historyTableBody.appendChild(row);
+            });
+        }
+    }, { onlyOnce: true });
+}
+
 // Click Listeners for Selection
 civicTestBench1.addEventListener("click", () => toggleSelection("civicTestBench1", civicTestBench1, civicTest1NameInput, civicTest1CodeDisplay, civicTest1Reset, "civicTest1SecretCode"));
 doctorsBench.addEventListener("click", () => toggleSelection("doctorsBench", doctorsBench, doctorsNameInput, doctorsCodeDisplay, doctorsReset, "doctorsSecretCode"));
@@ -135,9 +208,18 @@ setupReset("doctorsBench", doctorsReset, doctorsNameInput, doctorsCodeDisplay, "
 setupReset("sovdDomainBench", sovdDomainReset, sovdDomainNameInput, sovdDomainCodeDisplay, "sovdDomainSecretCode");
 setupReset("civicTestBench2", civicTest2Reset, civicTest2NameInput, civicTest2CodeDisplay, "civicTest2SecretCode");
 
-// Close Popup
+// Close Popups
 closePopup.addEventListener("click", () => {
     adminPopup.style.display = "none";
+});
+
+historyBtn.addEventListener("click", () => {
+    historyPopup.style.display = "flex";
+    displayHistory();
+});
+
+closeHistoryPopup.addEventListener("click", () => {
+    historyPopup.style.display = "none";
 });
 
 // Sync with Firebase and Show Secret Code if Exists
