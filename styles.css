@@ -229,3 +229,54 @@ h1 {
     background: #e03e00;
     box-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
 }
+.history-btn {
+    margin-top: 30px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #ffd700;
+    color: #0a0a0a;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.history-btn:hover {
+    background: #e6c200;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+}
+
+.history-content {
+    width: 80%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+#historyTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    color: #fff;
+}
+
+#historyTable th,
+#historyTable td {
+    padding: 12px;
+    border: 1px solid #ffd700;
+    text-align: center;
+}
+
+#historyTable th {
+    background: #ff4500;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+#historyTable tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#historyTable tbody tr:hover {
+    background: rgba(255, 215, 0, 0.1);
+}
