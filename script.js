@@ -4,7 +4,7 @@ import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/fi
 
 // Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC1J_Vpdgg797e9V8WNEyP7uAuUPlWs0mc",
+  apiKey: "AIzaSyC1_Vpdgg797e9V8WNEyP7uAuUPlWs0mc",
   authDomain: "bench-tracker-s.firebaseapp.com",
   databaseURL: "https://bench-tracker-s-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "bench-tracker-s",
@@ -244,27 +244,66 @@ onValue(ref(database, "benches/civicTestBench2"), (snapshot) => {
     }
 });
 
-// History Functionality
+// Enhanced History Functionality with Categorization
 historyBtn.addEventListener("click", () => {
     historyPopup.style.display = "flex";
-    historyTableBody.innerHTML = "";
-    
+    historyTableBody.innerHTML = ""; // Clear existing content
+
     onValue(ref(database, "usageHistory"), (snapshot) => {
         const data = snapshot.val();
-        if (data) {
-            Object.values(data).forEach(entry => {
+        if (!data) {
+            historyTableBody.innerHTML = "<tr><td colspan='6'>No history available yet.</td></tr>";
+            return;
+        }
+
+        // Group entries by bench name for categorization
+        const historyByBench = {};
+        Object.values(data).forEach(entry => {
+            if (!historyByBench[entry.benchName]) {
+                historyByBench[entry.benchName] = [];
+            }
+            historyByBench[entry.benchName].push(entry);
+        });
+
+        // Sort benches alphabetically
+        const sortedBenches = Object.keys(historyByBench).sort();
+
+        // Create categorized sections
+        sortedBenches.forEach(benchName => {
+            // Add a header row for each bench
+            const headerRow = document.createElement("tr");
+            headerRow.innerHTML = `
+                <td colspan="6" style="background-color: #f0f0f0; font-weight: bold; padding: 10px;">
+                    ${benchName.replace("Bench", " Bench")}
+                </td>
+            `;
+            historyTableBody.appendChild(headerRow);
+
+            // Sort entries by dateTime (newest first)
+            const sortedEntries = historyByBench[benchName].sort((a, b) => 
+                new Date(b.dateTime) - new Date(a.dateTime)
+            );
+
+            // Add entries for this bench
+            sortedEntries.forEach(entry => {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${entry.userName}</td>
-                    <td>${entry.benchName.replace("Bench", " Bench")}</td>
-                    <td>${formatDateTime(entry.loginTime)}</td>
-                    <td>${formatDateTime(entry.logoutTime)}</td>
-                    <td>${formatDateTime(entry.dateTime)}</td>
-                    <td>${calculateUsageTime(entry.loginTime, entry.logoutTime)}</td>
+                    <td style="padding: 8px;">${entry.userName}</td>
+                    <td style="padding: 8px;">${formatDateTime(entry.loginTime)}</td>
+                    <td style="padding: 8px;">${formatDateTime(entry.logoutTime)}</td>
+                    <td style="padding: 8px;">${calculateUsageTime(entry.loginTime, entry.logoutTime)}</td>
+                    <td style="padding: 8px;">${formatDateTime(entry.dateTime)}</td>
                 `;
                 historyTableBody.appendChild(row);
             });
-        }
+        });
+
+        // Add some basic styling to the table
+        historyTableBody.style.borderCollapse = "collapse";
+        historyTableBody.querySelectorAll("td").forEach(td => {
+            td.style.border = "1px solid #ddd";
+        });
+
     }, { onlyOnce: true });
 });
 
