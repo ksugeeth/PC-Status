@@ -1,6 +1,6 @@
 // Import and Initialize Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -17,7 +17,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Get Elements (Existing)
+// Get Elements
 const civicTestBench1 = document.getElementById("civicTestBench1");
 const doctorsBench = document.getElementById("doctorsBench");
 const sovdDomainBench = document.getElementById("sovdDomainBench");
@@ -49,51 +49,36 @@ const historyPopup = document.getElementById("historyPopup");
 const historyTableBody = document.querySelector("#historyTable tbody");
 const closeHistoryPopup = document.getElementById("closeHistoryPopup");
 
-// Chat Elements
-const chatPopup = document.getElementById("chatPopup");
-const chatBenchName = document.getElementById("chatBenchName");
-const chatMessages = document.getElementById("chatMessages");
-const typingIndicator = document.getElementById("typingIndicator");
-const chatInput = document.getElementById("chatInput");
-const sendChat = document.getElementById("sendChat");
-const closeChatPopup = document.getElementById("closeChatPopup");
-
-// Store secret codes locally (Existing)
+// Store secret codes locally
 let civicTest1SecretCode = localStorage.getItem("civicTest1SecretCode") || null;
 let doctorsSecretCode = localStorage.getItem("doctorsSecretCode") || null;
 let sovdDomainSecretCode = localStorage.getItem("sovdDomainSecretCode") || null;
 let civicTest2SecretCode = localStorage.getItem("civicTest2SecretCode") || null;
 
-// Generate a random 6-digit code (Existing)
+// Generate a random 6-digit code
 function generateSecretCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Display secret code for the user (Existing)
+// Display secret code for the user
 function displaySecretCode(codeDisplay, code, benchName) {
     codeDisplay.style.display = "block";
     codeDisplay.textContent = `Your Secret Code: ${code}`;
-    // Add chat button to secret code display
-    const chatBtn = document.createElement("button");
-    chatBtn.textContent = "Chat";
-    chatBtn.className = "chat-btn";
-    chatBtn.onclick = () => openChat(benchName, code);
-    codeDisplay.appendChild(chatBtn);
 }
 
-// Format timestamp to readable date/time (Existing)
+// Format timestamp to readable date/time
 function formatDateTime(timestamp) {
     return new Date(timestamp).toLocaleString();
 }
 
-// Calculate usage time in minutes (Existing)
+// Calculate usage time in minutes
 function calculateUsageTime(loginTime, logoutTime) {
     const diffMs = new Date(logoutTime) - new Date(loginTime);
-    Chconst minutes = Math.round(diffMs / 60000);
+    const minutes = Math.round(diffMs / 60000);
     return `${minutes} minutes`;
 }
 
-// Save usage history to Firebase (Existing)
+// Save usage history to Firebase
 function saveUsageHistory(benchName, userName, loginTime, logoutTime) {
     const historyRef = ref(database, "usageHistory");
     const newEntry = {
@@ -106,7 +91,7 @@ function saveUsageHistory(benchName, userName, loginTime, logoutTime) {
     push(historyRef, newEntry);
 }
 
-// Toggle Selection and Update Firebase (Existing)
+// Toggle Selection and Update Firebase
 function toggleSelection(benchName, element, nameInput, codeDisplay, resetBtn, secretKey) {
     const isSelected = element.classList.contains("selected");
     const name = nameInput.value.trim();
@@ -160,7 +145,7 @@ function toggleSelection(benchName, element, nameInput, codeDisplay, resetBtn, s
     }
 }
 
-// Reset Functionality with Admin Popup (Existing)
+// Reset Functionality with Admin Popup
 function setupReset(benchName, resetBtn, nameInput, codeDisplay, secretKey) {
     resetBtn.addEventListener("click", () => {
         adminPopup.style.display = "block";
@@ -197,113 +182,24 @@ function setupReset(benchName, resetBtn, nameInput, codeDisplay, secretKey) {
     });
 }
 
-// Chat Functionality
-function openChat(benchName, secretCode) {
-    const storedCode = localStorage.getItem(getSecretKey(benchName));
-    if (secretCode !== storedCode) {
-        alert("You need the active secret code to access this chat!");
-        return;
-    }
-
-    chatBenchName.textContent = `${benchName.replace("Bench", " Bench")} Chat`;
-    chatPopup.style.display = "flex";
-    chatMessages.innerHTML = "";
-    chatInput.value = "";
-
-    const chatRef = ref(database, `benches/${benchName}/chat`);
-    onChildAdded(chatRef, (snapshot) => {
-        const message = snapshot.val();
-        displayMessage(message.userName, message.text);
-    });
-
-    let typingTimeout;
-    chatInput.addEventListener("input", () => {
-        clearTimeout(typingTimeout);
-        typingIndicator.style.display = "block";
-        typingTimeout = setTimeout(() => {
-            typingIndicator.style.display = "none";
-        }, 1000);
-    });
-
-    sendChat.onclick = () => sendMessage(benchName, secretCode);
-    chatInput.onkeypress = (e) => {
-        if (e.key === "Enter") sendMessage(benchName, secretCode);
-    };
-}
-
-function sendMessage(benchName, secretCode) {
-    const text = chatInput.value.trim();
-    if (!text) return;
-
-    const nameInput = getNameInput(benchName);
-    const userName = nameInput.value.trim();
-    const chatRef = ref(database, `benches/${benchName}/chat`);
-    push(chatRef, {
-        userName,
-        text,
-        timestamp: new Date().toISOString()
-    }).then(() => {
-        chatInput.value = "";
-    }).catch((error) => console.error("Error sending message:", error));
-}
-
-function displayMessage(userName, text) {
-    const messageDiv = document.createElement("div");
-    messageDiv.className = "chat-message";
-
-    const avatar = document.createElement("img");
-    avatar.src = `https://www.gravatar.com/avatar/${md5(userName.toLowerCase())}?d=identicon&s=30`;
-    avatar.alt = `${userName}'s avatar`;
-
-    const content = document.createElement("div");
-    content.className = "message-content";
-    content.textContent = `${userName}: ${text}`;
-
-    messageDiv.appendChild(avatar);
-    messageDiv.appendChild(content);
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// Helper Functions for Chat
-function getSecretKey(benchName) {
-    const map = {
-        "civicTestBench1": "civicTest1SecretCode",
-        "doctorsBench": "doctorsSecretCode",
-        "sovdDomainBench": "sovdDomainSecretCode",
-        "civicTestBench2": "civicTest2SecretCode"
-    };
-    return map[benchName];
-}
-
-function getNameInput(benchName) {
-    const map = {
-        "civicTestBench1": civicTest1NameInput,
-        "doctorsBench": doctorsNameInput,
-        "sovdDomainBench": sovdDomainNameInput,
-        "civicTestBench2": civicTest2NameInput
-    };
-    return map[benchName];
-}
-
-// Click Listeners for Selection (Existing)
+// Click Listeners for Selection
 civicTestBench1.addEventListener("click", () => toggleSelection("civicTestBench1", civicTestBench1, civicTest1NameInput, civicTest1CodeDisplay, civicTest1Reset, "civicTest1SecretCode"));
 doctorsBench.addEventListener("click", () => toggleSelection("doctorsBench", doctorsBench, doctorsNameInput, doctorsCodeDisplay, doctorsReset, "doctorsSecretCode"));
 sovdDomainBench.addEventListener("click", () => toggleSelection("sovdDomainBench", sovdDomainBench, sovdDomainNameInput, sovdDomainCodeDisplay, sovdDomainReset, "sovdDomainSecretCode"));
 civicTestBench2.addEventListener("click", () => toggleSelection("civicTestBench2", civicTestBench2, civicTest2NameInput, civicTest2CodeDisplay, civicTest2Reset, "civicTest2SecretCode"));
 
-// Setup Reset Buttons (Existing)
+// Setup Reset Buttons
 setupReset("civicTestBench1", civicTest1Reset, civicTest1NameInput, civicTest1CodeDisplay, "civicTest1SecretCode");
 setupReset("doctorsBench", doctorsReset, doctorsNameInput, doctorsCodeDisplay, "doctorsSecretCode");
 setupReset("sovdDomainBench", sovdDomainReset, sovdDomainNameInput, sovdDomainCodeDisplay, "sovdDomainSecretCode");
 setupReset("civicTestBench2", civicTest2Reset, civicTest2NameInput, civicTest2CodeDisplay, "civicTest2SecretCode");
 
-// Close Popup (Existing)
+// Close Popup
 closePopup.addEventListener("click", () => {
     adminPopup.style.display = "none";
 });
 
-// Sync with Firebase and Show Secret Code if Exists (Existing)
+// Sync with Firebase and Show Secret Code if Exists
 onValue(ref(database, "benches/civicTestBench1"), (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -348,7 +244,7 @@ onValue(ref(database, "benches/civicTestBench2"), (snapshot) => {
     }
 });
 
-// History Functionality (Existing)
+// History Functionality
 historyBtn.addEventListener("click", () => {
     historyPopup.style.display = "flex";
     historyTableBody.innerHTML = "";
@@ -375,14 +271,3 @@ historyBtn.addEventListener("click", () => {
 closeHistoryPopup.addEventListener("click", () => {
     historyPopup.style.display = "none";
 });
-
-// Close Chat Popup
-closeChatPopup.addEventListener("click", () => {
-    chatPopup.style.display = "none";
-});
-
-// MD5 for Gravatar (Simple Implementation - Include a Library or Use This)
-function md5(str) {
-    // For simplicity, this is a placeholder. Use a proper MD5 library like md5.js for production.
-    return str.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0).toString(16);
-}
